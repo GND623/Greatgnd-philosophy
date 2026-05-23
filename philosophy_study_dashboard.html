@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Philosophy Study Dashboard</title>
+  <style>
+    :root {
+      --bg: #0f1115;
+      --card: #181b22;
+      --card2: #20242d;
+      --text: #f2f2f2;
+      --muted: #a7adb8;
+      --accent: #8ee6b7;
+      --line: #303540;
+      --danger: #ffb4a2;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", sans-serif;
+      background: linear-gradient(180deg, #0f1115, #151820);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 18px;
+    }
+    .wrap { max-width: 960px; margin: 0 auto; }
+    header {
+      padding: 24px 20px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      margin-bottom: 18px;
+    }
+    h1 { margin: 0 0 8px; font-size: 28px; }
+    h2 { font-size: 20px; margin: 0 0 12px; }
+    h3 { margin: 0 0 8px; font-size: 16px; color: var(--accent); }
+    p { margin: 6px 0; }
+    .muted { color: var(--muted); }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 18px;
+    }
+    .task {
+      display: flex;
+      gap: 10px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--card2);
+      margin: 10px 0;
+      cursor: pointer;
+      user-select: none;
+    }
+    .task input { width: 18px; height: 18px; margin-top: 4px; accent-color: var(--accent); }
+    .task.done span { text-decoration: line-through; color: var(--muted); }
+    .progress {
+      height: 12px;
+      background: #2a2f3a;
+      border-radius: 999px;
+      overflow: hidden;
+      margin: 10px 0 4px;
+    }
+    .bar {
+      height: 100%;
+      width: 0%;
+      background: var(--accent);
+      transition: width .2s ease;
+    }
+    .concept {
+      padding: 12px;
+      border-radius: 14px;
+      background: var(--card2);
+      border: 1px solid var(--line);
+      margin: 10px 0;
+    }
+    textarea {
+      width: 100%;
+      min-height: 120px;
+      resize: vertical;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: #101219;
+      color: var(--text);
+      padding: 12px;
+      font: inherit;
+    }
+    button {
+      border: none;
+      border-radius: 999px;
+      padding: 10px 14px;
+      background: var(--accent);
+      color: #07130d;
+      font-weight: 700;
+      cursor: pointer;
+      margin: 6px 6px 0 0;
+    }
+    button.secondary {
+      background: #2b303a;
+      color: var(--text);
+      border: 1px solid var(--line);
+    }
+    .small { font-size: 13px; }
+    .warn { color: var(--danger); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>哲学学习仪表盘</h1>
+      <p class="muted">北大外国哲学考研 · 概念钉牢版</p>
+      <div class="progress"><div id="bar" class="bar"></div></div>
+      <p id="progressText" class="small muted">今日完成度：0%</p>
+    </header>
+
+    <section class="grid">
+      <div class="card">
+        <h2>今日任务</h2>
+        <label class="task"><input type="checkbox"><span>10:00–10:40：定义一个概念，例如 Being / Dasein / Form</span></label>
+        <label class="task"><input type="checkbox"><span>10:50–11:30：写出它与相邻概念的区别</span></label>
+        <label class="task"><input type="checkbox"><span>14:30–15:10：回答一道经典哲学题</span></label>
+        <label class="task"><input type="checkbox"><span>15:20–16:00：回答一道当代理论题</span></label>
+        <label class="task"><input type="checkbox"><span>16:10–16:40：整理 3 张概念卡片</span></label>
+      </div>
+
+      <div class="card">
+        <h2>今日两题</h2>
+        <h3>① 经典题</h3>
+        <p>亚里士多德的 Form 与柏拉图的 Form 有何根本差异？</p>
+        <h3>② 当代题</h3>
+        <p>“身份认同 identity” 能否替代 “主体 subject”？为什么？</p>
+        <p class="small muted">先答题，再看参考答案。别偷懒，殿下。</p>
+      </div>
+    </section>
+
+    <section class="grid">
+      <div class="card">
+        <h2>概念卡片库</h2>
+        <div class="concept"><h3>Form</h3><p>柏拉图处是独立理念；亚里士多德处是事物内部的本质结构。</p></div>
+        <div class="concept"><h3>Phenomenon</h3><p>康德处为经感性形式与知性范畴组织后的经验对象，不是幻觉。</p></div>
+        <div class="concept"><h3>Dasein</h3><p>海德格尔处指能够追问存在意义的存在者。</p></div>
+        <div class="concept"><h3>Subject</h3><p>不是单纯“自我”，而是能认识、行动、反思并承担责任的位置。</p></div>
+      </div>
+
+      <div class="card">
+        <h2>答题区</h2>
+        <textarea id="notes" placeholder="在这里写今天的答案、概念定义或错题……"></textarea>
+        <br>
+        <button onclick="saveNotes()">保存</button>
+        <button class="secondary" onclick="clearNotes()">清空</button>
+        <p id="saveStatus" class="small muted"></p>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>概念训练模板</h2>
+      <p>每个概念都按这四句写：</p>
+      <p>1. 它是什么意思？</p>
+      <p>2. 它在反对谁？</p>
+      <p>3. 它解决什么问题？</p>
+      <p>4. 它推出什么理论后果？</p>
+      <p class="small warn">规则：少写漂亮废话，多写精确定义。</p>
+    </section>
+  </div>
+
+  <script>
+    const boxes = [...document.querySelectorAll('input[type="checkbox"]')];
+    const tasks = [...document.querySelectorAll('.task')];
+    const notes = document.getElementById('notes');
+    const bar = document.getElementById('bar');
+    const progressText = document.getElementById('progressText');
+
+    function updateProgress() {
+      const done = boxes.filter(b => b.checked).length;
+      const pct = Math.round(done / boxes.length * 100);
+      bar.style.width = pct + '%';
+      progressText.textContent = '今日完成度：' + pct + '%';
+      boxes.forEach((b, i) => tasks[i].classList.toggle('done', b.checked));
+      localStorage.setItem('philosophyTasks', JSON.stringify(boxes.map(b => b.checked)));
+    }
+
+    boxes.forEach(b => b.addEventListener('change', updateProgress));
+
+    function saveNotes() {
+      localStorage.setItem('philosophyNotes', notes.value);
+      document.getElementById('saveStatus').textContent = '已保存到本机浏览器。';
+    }
+
+    function clearNotes() {
+      notes.value = '';
+      localStorage.removeItem('philosophyNotes');
+      document.getElementById('saveStatus').textContent = '已清空。';
+    }
+
+    const savedTasks = JSON.parse(localStorage.getItem('philosophyTasks') || '[]');
+    savedTasks.forEach((v, i) => { if (boxes[i]) boxes[i].checked = v; });
+    notes.value = localStorage.getItem('philosophyNotes') || '';
+    updateProgress();
+  </script>
+</body>
+</html>
