@@ -1,0 +1,1519 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Philosophy Study Dashboard</title>
+  <style>
+    :root {
+      --bg: #f7f7fb;
+      --bg2: #ffffff;
+      --card: rgba(255,255,255,.92);
+      --card2: #f7f4ff;
+      --text: #141725;
+      --muted: #7b8191;
+      --accent: #7c4dff;
+      --accent-soft: #eee7ff;
+      --accent-soft2: #f6f1ff;
+      --line: #e4e6ee;
+      --danger: #d36a5f;
+      --shadow: rgba(22, 24, 36, .08);
+      --input: #fbfbfe;
+      --nav: rgba(255,255,255,.9);
+    }
+
+    body.dark {
+      --bg: #0f1115;
+      --bg2: #151820;
+      --card: rgba(24,27,34,.92);
+      --card2: #20242d;
+      --text: #f2f2f2;
+      --muted: #a7adb8;
+      --accent: #8ee6b7;
+      --accent-soft: rgba(142,230,183,.14);
+      --accent-soft2: rgba(142,230,183,.08);
+      --line: #303540;
+      --danger: #ffb4a2;
+      --shadow: rgba(0,0,0,.28);
+      --input: #101219;
+      --nav: rgba(24,27,34,.92);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", "PingFang SC", sans-serif;
+      background:
+        radial-gradient(circle at 20% 0%, color-mix(in srgb, var(--accent) 12%, transparent), transparent 34%),
+        linear-gradient(180deg, var(--bg), var(--bg2));
+      color: var(--text);
+      line-height: 1.62;
+      padding: 16px;
+      padding-bottom: 96px;
+      transition: background .2s ease, color .2s ease;
+    }
+
+    .wrap {
+      max-width: 1040px;
+      margin: 0 auto;
+    }
+
+    .page { display: none; }
+    .page.active { display: block; }
+
+    header, .card, .bottom-nav {
+      background: var(--card);
+      border: 1px solid var(--line);
+      box-shadow: 0 16px 40px var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+
+    header {
+      padding: 24px 20px;
+      border-radius: 28px;
+      margin-bottom: 16px;
+    }
+
+    h1, h2, h3, p { margin-top: 0; }
+
+    h1 {
+      margin-bottom: 8px;
+      font-size: clamp(30px, 7vw, 46px);
+      letter-spacing: -.05em;
+      line-height: 1.1;
+    }
+
+    h2 {
+      font-size: 21px;
+      margin-bottom: 14px;
+      letter-spacing: -.02em;
+    }
+
+    h3 {
+      margin-bottom: 8px;
+      font-size: 16px;
+      color: var(--accent);
+    }
+
+    p { margin-bottom: 8px; }
+
+    .muted { color: var(--muted); }
+    .small { font-size: 13px; }
+    .warn { color: var(--danger); }
+
+    .topline {
+      display: flex;
+      gap: 14px;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-wrap: wrap;
+    }
+
+    .mode-toggle {
+      display: flex;
+      gap: 4px;
+      padding: 4px;
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--line) 45%, transparent);
+      border: 1px solid var(--line);
+      white-space: nowrap;
+    }
+
+    .mode-toggle button {
+      margin: 0;
+      padding: 8px 12px;
+      background: transparent;
+      color: var(--muted);
+      border: none;
+      box-shadow: none;
+      font-weight: 800;
+    }
+
+    .mode-toggle button.active {
+      background: var(--card);
+      color: var(--accent);
+      box-shadow: 0 8px 20px var(--shadow);
+    }
+
+    .status-row {
+      display: flex;
+      gap: 12px;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 18px;
+      padding: 14px 16px;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: color-mix(in srgb, var(--card) 82%, var(--accent-soft));
+    }
+
+    .status-date {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+    }
+
+    .check-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 999px;
+      padding: 8px 12px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .progress {
+      height: 10px;
+      background: color-mix(in srgb, var(--line) 64%, transparent);
+      border-radius: 999px;
+      overflow: hidden;
+      margin: 14px 0 6px;
+    }
+
+    .bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent), color-mix(in srgb, var(--accent) 62%, #ffffff));
+      transition: width .2s ease;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+
+    .card {
+      border-radius: 24px;
+      padding: 18px;
+      overflow: hidden;
+    }
+
+    .question-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .question {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 12px;
+      align-items: center;
+      padding: 14px;
+      border-radius: 18px;
+      background: color-mix(in srgb, var(--card2) 72%, var(--card));
+      border: 1px solid var(--line);
+    }
+
+    .num {
+      display: inline-grid;
+      place-items: center;
+      width: 38px;
+      height: 38px;
+      border-radius: 14px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 950;
+      font-size: 20px;
+      flex: 0 0 auto;
+    }
+
+    .chev {
+      color: var(--muted);
+      font-size: 28px;
+      line-height: 1;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin-bottom: 14px;
+    }
+
+    .icon {
+      color: var(--accent);
+      font-weight: 900;
+      font-size: 22px;
+      line-height: 1;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 168px;
+      resize: vertical;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: var(--input);
+      color: var(--text);
+      padding: 14px;
+      font: inherit;
+      outline: none;
+    }
+
+    textarea:focus {
+      border-color: color-mix(in srgb, var(--accent) 70%, var(--line));
+    }
+
+    .counter {
+      text-align: right;
+      color: var(--muted);
+      margin-top: 4px;
+      font-size: 13px;
+    }
+
+    button {
+      border: none;
+      border-radius: 999px;
+      padding: 10px 14px;
+      background: var(--accent);
+      color: white;
+      font-weight: 900;
+      cursor: pointer;
+      margin: 6px 6px 0 0;
+      transition: transform .15s ease, opacity .15s ease;
+    }
+
+    button:hover { transform: translateY(-1px); }
+
+    button.secondary {
+      background: var(--accent-soft);
+      color: var(--accent);
+      border: 1px solid color-mix(in srgb, var(--accent) 25%, var(--line));
+    }
+
+    button.ghost {
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid var(--line);
+    }
+
+    button.danger {
+      background: color-mix(in srgb, var(--danger) 16%, transparent);
+      color: var(--danger);
+      border: 1px solid color-mix(in srgb, var(--danger) 28%, var(--line));
+    }
+
+    .buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+      margin-top: 10px;
+    }
+
+    .concept-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 12px;
+    }
+
+    .concept {
+      padding: 14px;
+      border-radius: 18px;
+      background: color-mix(in srgb, var(--card2) 72%, var(--card));
+      border: 1px solid var(--line);
+    }
+
+    .concept h3 {
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+
+    .concept .concept-icon {
+      color: var(--accent);
+      font-size: 28px;
+      margin-bottom: 6px;
+    }
+
+    .hidden { display: none !important; }
+
+    .calendar-card {
+      margin-bottom: 16px;
+    }
+
+    .calendar-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .calendar-title {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      font-weight: 900;
+      font-size: 18px;
+    }
+
+    .calendar-hint {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 8px;
+      text-align: center;
+      align-items: center;
+    }
+
+    .weekday {
+      color: var(--muted);
+      font-size: 13px;
+      padding: 5px 0;
+      font-weight: 800;
+    }
+
+    .day {
+      position: relative;
+      display: grid;
+      place-items: center;
+      min-height: 42px;
+      border-radius: 16px;
+      color: var(--text);
+      cursor: pointer;
+      user-select: none;
+      transition: background .15s ease, transform .15s ease;
+    }
+
+    .day:hover {
+      background: var(--accent-soft2);
+      transform: translateY(-1px);
+    }
+
+    .day.other {
+      color: color-mix(in srgb, var(--muted) 55%, transparent);
+    }
+
+    .day.done {
+      background: var(--accent);
+      color: white;
+      font-weight: 950;
+    }
+
+    .day.today:not(.done) {
+      outline: 2px solid var(--accent);
+      color: var(--accent);
+      font-weight: 950;
+    }
+
+    .day.today.done {
+      box-shadow: 0 0 0 3px var(--accent-soft), inset 0 0 0 2px color-mix(in srgb, white 70%, transparent);
+    }
+
+    .legend {
+      display: flex;
+      gap: 18px;
+      align-items: center;
+      margin-top: 16px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .legend-dot, .legend-ring {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border-radius: 999px;
+      margin-right: 6px;
+      vertical-align: -2px;
+    }
+
+    .legend-dot { background: var(--accent); }
+    .legend-ring { border: 2px solid var(--accent); }
+
+    .history-list {
+      max-height: 280px;
+      overflow: auto;
+      padding-right: 4px;
+    }
+
+    .history-item {
+      padding: 13px;
+      border-radius: 18px;
+      background: color-mix(in srgb, var(--card2) 72%, var(--card));
+      border: 1px solid var(--line);
+      margin: 10px 0;
+      cursor: pointer;
+    }
+
+    .kbd {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 12px;
+      color: var(--accent);
+    }
+
+    .record-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .back {
+      width: 42px;
+      height: 42px;
+      border-radius: 999px;
+      display: grid;
+      place-items: center;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 950;
+      cursor: pointer;
+      border: 1px solid color-mix(in srgb, var(--accent) 20%, var(--line));
+    }
+
+    .record-title {
+      font-size: clamp(24px, 6vw, 34px);
+      font-weight: 950;
+      letter-spacing: -.04em;
+    }
+
+    .record-status {
+      display: flex;
+      gap: 12px;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      padding: 14px;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: color-mix(in srgb, var(--card2) 72%, var(--card));
+    }
+
+    .answer-block {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 12px;
+      margin: 12px 0;
+    }
+
+    .static-text {
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .bottom-nav {
+      position: fixed;
+      left: 50%;
+      bottom: 14px;
+      transform: translateX(-50%);
+      width: min(720px, calc(100vw - 28px));
+      border-radius: 999px;
+      padding: 8px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 4px;
+      z-index: 50;
+    }
+
+    .nav-item {
+      border-radius: 999px;
+      padding: 9px 6px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 12px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .nav-item.active {
+      color: var(--accent);
+      background: var(--accent-soft);
+      font-weight: 900;
+    }
+
+    .nav-icon {
+      display: block;
+      font-size: 19px;
+      line-height: 1;
+      margin-bottom: 2px;
+    }
+
+    .empty {
+      color: var(--muted);
+      padding: 18px;
+      text-align: center;
+      border: 1px dashed var(--line);
+      border-radius: 18px;
+    }
+
+    @media (max-width: 760px) {
+      body { padding: 12px; padding-bottom: 92px; }
+      header, .card { border-radius: 24px; }
+      .grid { grid-template-columns: 1fr; }
+      .status-row { align-items: flex-start; flex-direction: column; }
+      .question { grid-template-columns: auto 1fr; }
+      .question .chev { display: none; }
+      .calendar-grid { gap: 5px; }
+      .day { min-height: 39px; border-radius: 14px; }
+      .concept-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <main id="homePage" class="page active">
+      <header>
+        <div class="topline">
+          <div>
+            <h1>哲学学习仪表盘</h1>
+            <p class="muted">每天 1 小时 · 哲学家、理论与影响训练</p>
+          </div>
+
+          <div class="mode-toggle" aria-label="主题模式">
+            <button id="lightBtn" onclick="setMode('light')">☀ 日间</button>
+            <button id="darkBtn" onclick="setMode('dark')">☾ 夜间</button>
+          </div>
+        </div>
+
+        <div class="status-row">
+          <div class="status-date">
+            <span class="icon">▣</span>
+            <span id="todayFullLabel"></span>
+          </div>
+          <div id="checkPill" class="check-pill">○ 今日打卡：未完成</div>
+        </div>
+
+        <div class="progress"><div id="bar" class="bar"></div></div>
+        <p id="progressText" class="small muted">今日打卡：未完成</p>
+      </header>
+
+      <section class="grid">
+        <div class="card">
+          <div class="section-title">
+            <span class="icon">☰</span>
+            <h2>今日问题</h2>
+          </div>
+          <div class="question-list">
+            <div class="question">
+              <span class="num">1</span>
+              <p id="classicQuestion"></p>
+              <span class="chev">›</span>
+            </div>
+            <div class="question">
+              <span class="num">2</span>
+              <p id="modernQuestion"></p>
+              <span class="chev">›</span>
+            </div>
+          </div>
+
+          <div class="buttons">
+            <button onclick="rerollToday()">换一组题</button>
+            <button class="secondary" onclick="copyPrompt()">复制纠错 Prompt</button>
+            <button class="ghost" onclick="toggleExplanation()">答题提示</button>
+          </div>
+
+          <p id="copyStatus" class="small muted"></p>
+
+          <div id="explanationBox" class="concept hidden">
+            <h3>今天答题时按这个顺序写</h3>
+            <p id="explanationText"></p>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="section-title">
+            <span class="icon">✎</span>
+            <h2>答题区</h2>
+          </div>
+          <textarea id="answer" maxlength="4000" placeholder="在这里写今天的答案。写完后点击保存，今日打卡会自动完成。"></textarea>
+          <div id="answerCounter" class="counter">0 / 4000</div>
+          <div class="buttons">
+            <button onclick="saveToday()">保存并完成打卡</button>
+            <button class="danger" onclick="clearToday()">清空今日</button>
+          </div>
+          <p id="saveStatus" class="small muted"></p>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="section-title">
+          <span class="icon">▥</span>
+          <h2>核心概念卡片</h2>
+        </div>
+        <div id="conceptCards" class="concept-grid"></div>
+      </section>
+
+      <section class="grid">
+        <div class="card">
+          <div class="section-title">
+            <span class="icon">▤</span>
+            <h2>标准答案对照区</h2>
+          </div>
+          <textarea id="reference" placeholder="把 ChatGPT 纠错后的标准答案粘贴到这里，方便之后复习。"></textarea>
+          <div class="buttons">
+            <button onclick="saveToday()">保存标准答案</button>
+            <button class="secondary" onclick="copyComparePrompt()">复制二次复盘 Prompt</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="section-title">
+            <span class="icon">◇</span>
+            <h2>概念训练模板</h2>
+          </div>
+          <p>每个概念都按这四句写：</p>
+          <p>1. 它是什么意思？</p>
+          <p>2. 它在反对谁？</p>
+          <p>3. 它解决什么问题？</p>
+          <p>4. 它推出什么理论后果？</p>
+          <p class="small warn">规则：少写漂亮废话，多写精确定义。</p>
+        </div>
+      </section>
+
+      <section class="card calendar-card">
+        <div class="calendar-top">
+          <div class="calendar-title">
+            <span class="icon">▣</span>
+            <span id="calendarTitle">学习打卡</span>
+          </div>
+          <div class="calendar-hint">点击日期查看记录</div>
+        </div>
+        <div id="calendarGrid" class="calendar-grid"></div>
+        <div class="legend">
+          <span><i class="legend-dot"></i>已打卡</span>
+          <span><i class="legend-ring"></i>今天</span>
+        </div>
+      </section>
+
+      <section class="grid">
+        <div class="card">
+          <div class="section-title">
+            <span class="icon">↥</span>
+            <h2>备份与迁移</h2>
+          </div>
+          <p class="muted">换电脑或换浏览器前，可以导出数据。导入时会覆盖当前浏览器里的学习记录。</p>
+          <div class="buttons">
+            <button onclick="exportData()">导出 JSON</button>
+            <button class="secondary" onclick="document.getElementById('importFile').click()">导入 JSON</button>
+            <input id="importFile" type="file" accept="application/json" class="hidden" onchange="importData(event)" />
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="section-title">
+            <span class="icon">◷</span>
+            <h2>最近记录</h2>
+          </div>
+          <div id="historyList" class="history-list"></div>
+        </div>
+      </section>
+    </main>
+
+    <main id="recordPage" class="page">
+      <section class="card">
+        <div class="record-header">
+          <div class="back" onclick="showHome()">←</div>
+          <div class="record-title" id="recordTitle">学习记录</div>
+        </div>
+
+        <div class="record-status">
+          <div>
+            <h3 id="recordStatusText">已打卡 · 学习完成</h3>
+            <p id="recordUpdated" class="muted small"></p>
+          </div>
+          <div class="status-date">
+            <span class="icon">▣</span>
+            <span id="recordDateText"></span>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="section-title">
+          <span class="icon">▥</span>
+          <h2>当日问题</h2>
+        </div>
+        <div class="question-list">
+          <div class="question">
+            <span class="num">1</span>
+            <p id="recordQ1"></p>
+            <span class="chev">›</span>
+          </div>
+          <div class="question">
+            <span class="num">2</span>
+            <p id="recordQ2"></p>
+            <span class="chev">›</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="section-title">
+          <span class="icon">♙</span>
+          <h2>我的回答</h2>
+        </div>
+        <div id="recordAnswer" class="static-text"></div>
+      </section>
+
+      <section class="card">
+        <div class="section-title">
+          <span class="icon">▥</span>
+          <h2>当日概念卡片</h2>
+        </div>
+        <div id="recordConcepts" class="concept-grid"></div>
+      </section>
+
+      <section class="card">
+        <div class="section-title">
+          <span class="icon">▤</span>
+          <h2>标准答案对照</h2>
+        </div>
+        <div id="recordReference" class="static-text"></div>
+      </section>
+
+      <button class="secondary" style="width:100%; margin-top:0;" onclick="showHome()">← 返回日历</button>
+    </main>
+  </div>
+
+  <nav class="bottom-nav" id="bottomNav">
+    <div class="nav-item active" onclick="showHome()"><span class="nav-icon">⌂</span>首页</div>
+    <div class="nav-item" onclick="scrollToConcepts()"><span class="nav-icon">▧</span>概念卡片</div>
+    <div class="nav-item" onclick="scrollToCalendar()"><span class="nav-icon">◷</span>学习记录</div>
+    <div class="nav-item" onclick="document.getElementById('copyStatus').textContent='设置在右上角日间/夜间切换。'"><span class="nav-icon">♙</span>我的</div>
+  </nav>
+
+  <script>
+    const state = {
+      dateKey: getDateKey(),
+      reroll: Number(localStorage.getItem("philosophy_reroll_" + getDateKey()) || 0),
+      currentSet: null
+    };
+
+    const thinkers = [
+      {
+        name: "柏拉图",
+        theory: "理念论",
+        summary: "真实存在不是感官世界中的个别事物，而是超越经验、稳定不变的理念。",
+        against: "智者派的相对主义，以及只停留在感官经验中的认识方式",
+        influence: "奠定了西方形而上学中“超感性真实”的传统，也影响了基督教神学和后来的唯理论。"
+      },
+      {
+        name: "亚里士多德",
+        theory: "实体论与形式质料论",
+        summary: "形式不在事物之外，而在具体事物之中；事物由质料与形式共同构成。",
+        against: "柏拉图把理念与个别事物分离的倾向",
+        influence: "为中世纪经院哲学、目的论自然观和传统形而上学提供了基本框架。"
+      },
+      {
+        name: "笛卡尔",
+        theory: "我思与近代主体哲学",
+        summary: "通过普遍怀疑寻找不可怀疑的确定性，最终确立“我思”作为知识基础。",
+        against: "未经反思的传统权威和感官经验的不可靠性",
+        influence: "开启近代认识论转向，使主体成为知识确定性的核心。"
+      },
+      {
+        name: "斯宾诺莎",
+        theory: "实体一元论",
+        summary: "只有一个无限实体，即神或自然；心灵与身体只是同一实体的不同属性。",
+        against: "笛卡尔的心物二元论",
+        influence: "影响德国古典哲学、浪漫主义和后来的泛神论、自然主义传统。"
+      },
+      {
+        name: "洛克",
+        theory: "经验论与白板说",
+        summary: "人的观念来自经验，心灵最初并没有天赋观念。",
+        against: "笛卡尔式天赋观念论",
+        influence: "推动英国经验论发展，并影响自由主义政治哲学。"
+      },
+      {
+        name: "休谟",
+        theory: "经验论怀疑主义",
+        summary: "因果性、自我和必然联系都不能由经验直接证明，只是习惯性联想的结果。",
+        against: "理性能够证明形而上学必然性的信念",
+        influence: "促使康德从“独断论迷梦”中醒来，推动批判哲学诞生。"
+      },
+      {
+        name: "康德",
+        theory: "先验哲学",
+        summary: "经验知识之所以可能，是因为主体以先天形式和范畴组织经验材料。",
+        against: "经验论与唯理论各自的片面性",
+        influence: "完成认识论中的“哥白尼式革命”，深刻影响德国古典哲学和现代主体理论。"
+      },
+      {
+        name: "黑格尔",
+        theory: "辩证法与精神哲学",
+        summary: "真理不是静止命题，而是在矛盾、否定和扬弃中展开的历史过程。",
+        against: "康德那里不可认识的物自体，以及抽象固定的知性思维",
+        influence: "影响马克思主义、存在主义、承认理论和现代历史哲学。"
+      },
+      {
+        name: "马克思",
+        theory: "历史唯物主义与异化劳动",
+        summary: "社会存在决定意识；资本主义劳动中，人的活动及其产物反过来支配人。",
+        against: "黑格尔的唯心主义历史观和抽象的人本主义",
+        influence: "改变了现代政治哲学、社会理论和意识形态批判。"
+      },
+      {
+        name: "尼采",
+        theory: "上帝之死与价值重估",
+        summary: "传统最高价值失去权威后，人必须重新创造价值，而不是依赖既定道德。",
+        against: "基督教道德、柏拉图主义和把生命压低的虚无主义价值体系",
+        influence: "影响存在主义、后结构主义、现代文学与文化批判。"
+      },
+      {
+        name: "胡塞尔",
+        theory: "现象学还原",
+        summary: "悬置自然态度，回到意识如何显现对象的结构本身。",
+        against: "心理主义和未经反思的自然主义认识论",
+        influence: "开启现象学运动，影响海德格尔、萨特、梅洛-庞蒂等人。"
+      },
+      {
+        name: "海德格尔",
+        theory: "存在论与此在分析",
+        summary: "哲学的根本问题不是认识对象，而是追问存在的意义；此在是能追问存在的存在者。",
+        against: "近代主体哲学和传统形而上学对存在问题的遗忘",
+        influence: "影响存在主义、解释学、解构主义和现代神学。"
+      },
+      {
+        name: "萨特",
+        theory: "存在先于本质",
+        summary: "人没有预设本质，而是在选择和行动中塑造自身，并必须承担自由的责任。",
+        against: "本质主义的人性观和逃避自由的自欺",
+        influence: "成为存在主义伦理和现代自由理论的重要代表。"
+      },
+      {
+        name: "福柯",
+        theory: "权力—知识与主体化",
+        summary: "权力不仅压迫人，也通过知识、制度和话语生产主体。",
+        against: "把主体看成完全自主、先于社会结构存在的近代主体观",
+        influence: "影响后结构主义、性别理论、医学史、监狱研究和现代治理批判。"
+      }
+    ];
+
+    const pairTopics = [
+      {
+        a: "柏拉图",
+        b: "亚里士多德",
+        focus: "理念论与形式论",
+        question: "柏拉图的理念论与亚里士多德的形式论有什么根本区别？为什么说亚里士多德把“形式”重新放回了具体事物之中？",
+        hint: "先说明柏拉图的理念在个别事物之外，再说明亚里士多德的形式在事物之内，最后指出这改变了形而上学的方向。"
+      },
+      {
+        a: "笛卡尔",
+        b: "洛克",
+        focus: "唯理论与经验论",
+        question: "笛卡尔的天赋观念思想与洛克的经验论有什么区别？二者对“知识从哪里来”的回答有何不同？",
+        hint: "抓住一个关键词：笛卡尔重视理性确定性，洛克重视经验来源。"
+      },
+      {
+        a: "笛卡尔",
+        b: "斯宾诺莎",
+        focus: "心物二元论与实体一元论",
+        question: "斯宾诺莎为什么反对笛卡尔的心物二元论？他的实体一元论如何重新理解心灵与身体的关系？",
+        hint: "先写笛卡尔区分心灵和身体，再写斯宾诺莎认为二者是同一实体的不同属性。"
+      },
+      {
+        a: "休谟",
+        b: "康德",
+        focus: "怀疑主义与先验哲学",
+        question: "休谟的因果怀疑如何推动康德提出先验哲学？康德怎样回应“因果性来自习惯”这一问题？",
+        hint: "重点写：休谟质疑因果必然性，康德把因果性理解为主体先天范畴。"
+      },
+      {
+        a: "康德",
+        b: "黑格尔",
+        focus: "批判哲学与辩证法",
+        question: "黑格尔为什么不满足于康德的物自体？他的辩证法如何试图克服康德哲学中的限制？",
+        hint: "抓住物自体、界限、辩证展开三个词。"
+      },
+      {
+        a: "黑格尔",
+        b: "马克思",
+        focus: "唯心辩证法与历史唯物主义",
+        question: "马克思如何改造黑格尔的辩证法？为什么说马克思把辩证法从精神的发展转向现实社会关系？",
+        hint: "先写黑格尔重精神和理念展开，再写马克思重物质生产、劳动和社会关系。"
+      },
+      {
+        a: "尼采",
+        b: "柏拉图",
+        focus: "价值重估与反柏拉图主义",
+        question: "为什么尼采常被理解为反柏拉图主义者？他反对柏拉图传统中的哪些价值倾向？",
+        hint: "重点写尼采反对贬低感性世界、生命和身体的超越价值。"
+      },
+      {
+        a: "胡塞尔",
+        b: "海德格尔",
+        focus: "现象学与存在论",
+        question: "海德格尔如何继承又改变胡塞尔的现象学？为什么他的重点从意识结构转向了存在问题？",
+        hint: "先写胡塞尔关注意识如何显现对象，再写海德格尔关注此在与存在意义。"
+      },
+      {
+        a: "海德格尔",
+        b: "萨特",
+        focus: "存在论与存在主义",
+        question: "萨特的“存在先于本质”与海德格尔的此在分析有什么联系和差异？",
+        hint: "可以写二者都反对抽象本质主义，但萨特更强调自由选择和责任。"
+      },
+      {
+        a: "康德",
+        b: "福柯",
+        focus: "主体条件与主体化",
+        question: "康德和福柯都关心主体，但他们理解主体的方式有什么不同？",
+        hint: "康德问主体如何使经验知识成为可能；福柯问主体如何被制度、知识和权力塑造。"
+      }
+    ];
+
+    const influenceTopics = [
+      {
+        thinker: "柏拉图",
+        question: "请说明柏拉图理念论的核心内容，并简要分析它为什么会影响后来的形而上学和基督教思想。",
+        hint: "按“理念是什么—它和感性事物的关系—后续影响”来写。"
+      },
+      {
+        thinker: "亚里士多德",
+        question: "请说明亚里士多德实体论的基本思路，并分析它如何修正柏拉图的理念论。",
+        hint: "抓住实体、形式、质料，以及形式在事物之内。"
+      },
+      {
+        thinker: "笛卡尔",
+        question: "请说明笛卡尔“我思故我在”的理论意义。为什么它被视为近代主体哲学的开端？",
+        hint: "不要只解释句子，要写它如何把知识基础转向主体。"
+      },
+      {
+        thinker: "休谟",
+        question: "请说明休谟对因果性的怀疑，并分析它为什么对康德哲学产生重要影响。",
+        hint: "写清楚：经验中只有先后相继，没有必然联系。"
+      },
+      {
+        thinker: "康德",
+        question: "请说明康德“哥白尼式革命”的含义。它如何改变主体与对象的关系？",
+        hint: "重点：不是认识符合对象，而是对象作为经验对象必须符合主体的认识形式。"
+      },
+      {
+        thinker: "黑格尔",
+        question: "请说明黑格尔辩证法中的“否定”和“扬弃”是什么意思，并举例说明它为何不是简单否定。",
+        hint: "写出：保留、取消、提升三个层次。"
+      },
+      {
+        thinker: "马克思",
+        question: "请说明马克思异化劳动理论的基本内容，并分析它对现代社会批判的意义。",
+        hint: "可从劳动产品、劳动过程、人的类本质、人与人的关系四方面写。"
+      },
+      {
+        thinker: "尼采",
+        question: "请说明尼采“上帝之死”的含义。为什么它不是单纯的宗教命题，而是价值危机命题？",
+        hint: "抓住最高价值失效、虚无主义、价值重估。"
+      },
+      {
+        thinker: "海德格尔",
+        question: "请说明海德格尔为什么要区分“存在”与“存在者”。这一问题对传统形而上学有什么批判意义？",
+        hint: "先解释存在者是具体对象，再解释存在是对象得以显现的意义维度。"
+      },
+      {
+        thinker: "福柯",
+        question: "请说明福柯“权力—知识”的基本含义，并分析它如何改变我们对主体的理解。",
+        hint: "重点：权力不是只压迫，也会生产知识、规范和主体。"
+      }
+    ];
+
+    function getDateKey(date = new Date()) {
+      const d = new Date(date);
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, "0");
+      const day = String(d.getDate()).padStart(2, "0");
+      return `${y}-${m}-${day}`;
+    }
+
+    function formatChineseDate(dateKey) {
+      const [y, m, d] = dateKey.split("-").map(Number);
+      const date = new Date(y, m - 1, d);
+      const weeks = ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"];
+      return `${y}年${m}月${d}日（${weeks[date.getDay()]}）`;
+    }
+
+    function hashString(str) {
+      let h = 2166136261;
+      for (let i = 0; i < str.length; i++) {
+        h ^= str.charCodeAt(i);
+        h += (h << 1) + (h << 4) + (h << 7) + (h << 8) + (h << 24);
+      }
+      return h >>> 0;
+    }
+
+    function mulberry32(seed) {
+      return function() {
+        let t = seed += 0x6D2B79F5;
+        t = Math.imul(t ^ t >>> 15, t | 1);
+        t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+        return ((t ^ t >>> 14) >>> 0) / 4294967296;
+      };
+    }
+
+    function pick(arr, rng) {
+      return arr[Math.floor(rng() * arr.length)];
+    }
+
+    function makeQuestionSet(rng) {
+      const usePair = rng() < 0.62;
+      if (usePair) {
+        const topic = pick(pairTopics, rng);
+        const a = thinkers.find(t => t.name === topic.a);
+        const b = thinkers.find(t => t.name === topic.b);
+        return {
+          classicQuestion: topic.question,
+          modernQuestion: `请补充说明：${topic.a}与${topic.b}这一区别，对后来的哲学问题或现代思想有什么影响？`,
+          concepts: [
+            {
+              term: `${topic.a}：${a.theory}`,
+              desc: a.summary,
+              school: `反对或修正：${a.against}`,
+              neighbor: topic.b,
+              problem: a.influence
+            },
+            {
+              term: `${topic.b}：${b.theory}`,
+              desc: b.summary,
+              school: `反对或修正：${b.against}`,
+              neighbor: topic.a,
+              problem: b.influence
+            },
+            {
+              term: topic.focus,
+              desc: topic.hint,
+              school: "比较题写作提示",
+              neighbor: "区别 / 继承 / 修正",
+              problem: "先分别定义，再比较差异，最后写影响。"
+            }
+          ],
+          focus: [topic.a, topic.b, topic.focus],
+          explanation: topic.hint
+        };
+      }
+
+      const topic = pick(influenceTopics, rng);
+      const thinker = thinkers.find(t => t.name === topic.thinker);
+      return {
+        classicQuestion: topic.question,
+        modernQuestion: `请进一步说明：${thinker.name}的${thinker.theory}主要反对或修正了什么思想？它对后来的哲学产生了什么影响？`,
+        concepts: [
+          {
+            term: `${thinker.name}：${thinker.theory}`,
+            desc: thinker.summary,
+            school: `反对或修正：${thinker.against}`,
+            neighbor: thinker.name,
+            problem: thinker.influence
+          },
+          {
+            term: "理论背景",
+            desc: `这套理论主要针对：${thinker.against}。`,
+            school: "哲学史位置",
+            neighbor: "前人问题",
+            problem: "回答时要写清楚它不是凭空出现的。"
+          },
+          {
+            term: "后续影响",
+            desc: thinker.influence,
+            school: "影响线索",
+            neighbor: "后世理论",
+            problem: topic.hint
+          }
+        ],
+        focus: [thinker.name, thinker.theory, "影响"],
+        explanation: topic.hint
+      };
+    }
+
+    function generateSet(dateKey = state.dateKey, reroll = state.reroll) {
+      const seed = hashString(dateKey + ":" + reroll);
+      const rng = mulberry32(seed);
+      return makeQuestionSet(rng);
+    }
+
+    function storageKey(name, dateKey = state.dateKey) {
+      return `philosophy_${name}_${dateKey}`;
+    }
+
+    function getMeta() {
+      return JSON.parse(localStorage.getItem("philosophy_history") || "{}");
+    }
+
+    function setMode(mode) {
+      const finalMode = mode === "dark" ? "dark" : "light";
+      document.body.classList.toggle("dark", finalMode === "dark");
+      localStorage.setItem("philosophy_mode", finalMode);
+      document.getElementById("lightBtn").classList.toggle("active", finalMode === "light");
+      document.getElementById("darkBtn").classList.toggle("active", finalMode === "dark");
+    }
+
+    function render() {
+      state.currentSet = generateSet();
+
+      document.getElementById("todayFullLabel").textContent = "今天是 " + formatChineseDate(state.dateKey);
+      document.getElementById("classicQuestion").textContent = state.currentSet.classicQuestion;
+      document.getElementById("modernQuestion").textContent = state.currentSet.modernQuestion;
+      document.getElementById("explanationText").textContent = state.currentSet.explanation;
+
+      renderConcepts("conceptCards", state.currentSet.concepts);
+
+      document.getElementById("answer").value = localStorage.getItem(storageKey("answer")) || "";
+      document.getElementById("reference").value = localStorage.getItem(storageKey("reference")) || "";
+      updateAnswerCounter();
+      updateProgress();
+      renderCalendar();
+      renderHistory();
+    }
+
+    function renderConcepts(id, concepts) {
+      const box = document.getElementById(id);
+      box.innerHTML = concepts.map((c, index) => `
+        <div class="concept">
+          <div class="concept-icon">${["♙", "▥", "◌"][index % 3]}</div>
+          <h3>${escapeHTML(c.term)}</h3>
+          <p>${escapeHTML(c.desc)}</p>
+          <p class="small muted">${escapeHTML(c.school)}</p>
+          <p class="small muted">关联线索：<span class="kbd">${escapeHTML(c.neighbor)}</span><br>影响/答题提示：${escapeHTML(c.problem)}</p>
+        </div>
+      `).join("");
+    }
+
+    function updateProgress() {
+      const completed = localStorage.getItem(storageKey("completed")) === "true";
+      const pct = completed ? 100 : 0;
+      document.getElementById("bar").style.width = pct + "%";
+      document.getElementById("progressText").textContent = completed ? "今日打卡：已完成" : "今日打卡：未完成";
+      document.getElementById("checkPill").textContent = completed ? "✓ 今日打卡：已完成" : "○ 今日打卡：未完成";
+      saveMeta(false);
+    }
+
+    function saveToday() {
+      const answerText = document.getElementById("answer").value.trim();
+      localStorage.setItem(storageKey("answer"), document.getElementById("answer").value);
+      localStorage.setItem(storageKey("reference"), document.getElementById("reference").value);
+
+      if (answerText.length > 0) {
+        localStorage.setItem(storageKey("completed"), "true");
+        document.getElementById("saveStatus").textContent = "已保存，今日打卡完成。";
+      } else {
+        localStorage.setItem(storageKey("completed"), "false");
+        document.getElementById("saveStatus").textContent = "已保存。答题区还没有内容，暂未完成打卡。";
+      }
+
+      updateProgress();
+      saveMeta(true);
+      renderCalendar();
+      renderHistory();
+    }
+
+    function saveMeta(showTime) {
+      if (!state.currentSet) return;
+      const answer = document.getElementById("answer") ? document.getElementById("answer").value : localStorage.getItem(storageKey("answer")) || "";
+      const reference = document.getElementById("reference") ? document.getElementById("reference").value : localStorage.getItem(storageKey("reference")) || "";
+      const completed = localStorage.getItem(storageKey("completed")) === "true";
+      const meta = getMeta();
+
+      meta[state.dateKey] = {
+        date: state.dateKey,
+        completed,
+        progress: completed ? 100 : 0,
+        reroll: state.reroll,
+        questions: {
+          classic: state.currentSet.classicQuestion,
+          modern: state.currentSet.modernQuestion
+        },
+        concepts: state.currentSet.concepts,
+        focus: state.currentSet.focus,
+        hasAnswer: answer.trim().length > 0,
+        hasReference: reference.trim().length > 0,
+        updatedAt: showTime ? new Date().toLocaleString() : (meta[state.dateKey]?.updatedAt || "")
+      };
+      localStorage.setItem("philosophy_history", JSON.stringify(meta));
+    }
+
+    function clearToday() {
+      if (!confirm("确定清空今天的答题和标准答案吗？")) return;
+      document.getElementById("answer").value = "";
+      document.getElementById("reference").value = "";
+      localStorage.removeItem(storageKey("answer"));
+      localStorage.removeItem(storageKey("reference"));
+      localStorage.removeItem(storageKey("completed"));
+      updateAnswerCounter();
+      saveMeta(true);
+      render();
+      document.getElementById("saveStatus").textContent = "今日内容已清空。";
+    }
+
+    function rerollToday() {
+      state.reroll += 1;
+      localStorage.setItem("philosophy_reroll_" + state.dateKey, String(state.reroll));
+      saveToday();
+      render();
+    }
+
+    function makeCorrectionPrompt() {
+      const answer = document.getElementById("answer").value.trim();
+      const qs = state.currentSet;
+      return `请作为严格的哲学导师，对我的答案进行概念精度、逻辑结构与哲学史关系上的纠错，并给出标准参考答案。
+
+今日概念：${qs.focus.join(" / ")}
+
+问题1：${qs.classicQuestion}
+
+问题2：${qs.modernQuestion}
+
+我的答案：
+${answer || "（我还没有填写答案，请先给我答题框架，不要直接替我完成全文。）"}
+
+请按以下结构回复：
+1. 主要概念误差
+2. 逻辑结构问题
+3. 哲学史关系补充
+4. 可直接背诵的标准答案
+5. 下次答题提醒`;
+    }
+
+    function makeComparePrompt() {
+      const answer = document.getElementById("answer").value.trim();
+      const reference = document.getElementById("reference").value.trim();
+      return `请比较我的原答案与标准答案，指出我真正薄弱的地方，并生成一份明天复习用的概念清单。
+
+我的原答案：
+${answer || "（空）"}
+
+标准答案：
+${reference || "（空）"}`;
+    }
+
+    async function writeClipboard(text) {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+        return true;
+      }
+
+      const temp = document.createElement("textarea");
+      temp.value = text;
+      temp.style.position = "fixed";
+      temp.style.left = "-9999px";
+      document.body.appendChild(temp);
+      temp.focus();
+      temp.select();
+      const ok = document.execCommand("copy");
+      document.body.removeChild(temp);
+      return ok;
+    }
+
+    async function copyPrompt() {
+      saveToday();
+      try {
+        await writeClipboard(makeCorrectionPrompt());
+        document.getElementById("copyStatus").textContent = "纠错 Prompt 已复制。";
+      } catch (e) {
+        document.getElementById("copyStatus").textContent = "复制失败，请手动复制答题区内容。";
+      }
+    }
+
+    async function copyComparePrompt() {
+      saveToday();
+      try {
+        await writeClipboard(makeComparePrompt());
+        document.getElementById("saveStatus").textContent = "二次复盘 Prompt 已复制。";
+      } catch (e) {
+        document.getElementById("saveStatus").textContent = "复制失败，请手动复制。";
+      }
+    }
+
+    function toggleExplanation() {
+      document.getElementById("explanationBox").classList.toggle("hidden");
+    }
+
+    function renderCalendar() {
+      const grid = document.getElementById("calendarGrid");
+      const today = new Date();
+      const y = today.getFullYear();
+      const m = today.getMonth();
+      document.getElementById("calendarTitle").textContent = `学习打卡 · ${y}年${m + 1}月`;
+
+      const first = new Date(y, m, 1);
+      const start = new Date(y, m, 1 - first.getDay());
+      const meta = getMeta();
+      const todayKey = getDateKey(today);
+      const weekdays = ["日", "一", "二", "三", "四", "五", "六"];
+
+      let html = weekdays.map(w => `<div class="weekday">${w}</div>`).join("");
+
+      for (let i = 0; i < 42; i++) {
+        const d = new Date(start);
+        d.setDate(start.getDate() + i);
+        const key = getDateKey(d);
+        const isOther = d.getMonth() !== m;
+        const isDone = meta[key]?.completed || localStorage.getItem(storageKey("completed", key)) === "true";
+        const isToday = key === todayKey;
+        html += `<div class="day ${isOther ? "other" : ""} ${isDone ? "done" : ""} ${isToday ? "today" : ""}" onclick="openRecord('${key}')">${d.getDate()}</div>`;
+      }
+
+      grid.innerHTML = html;
+    }
+
+    function renderHistory() {
+      const meta = getMeta();
+      const dates = Object.keys(meta).filter(d => meta[d].completed || meta[d].hasAnswer || meta[d].hasReference).sort().reverse();
+      const box = document.getElementById("historyList");
+
+      if (!dates.length) {
+        box.innerHTML = '<div class="empty">还没有学习记录。保存一次后这里会出现历史。</div>';
+        return;
+      }
+
+      box.innerHTML = dates.slice(0, 30).map(date => {
+        const item = meta[date];
+        return `
+          <div class="history-item" onclick="openRecord('${date}')">
+            <h3>${escapeHTML(date)} · ${item.completed ? "已打卡" : "未完成"}</h3>
+            <p class="small">${escapeHTML(item.questions?.classic || "")}</p>
+            <p class="small muted">${escapeHTML((item.focus || []).join(" / "))}</p>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function openRecord(dateKey) {
+      const meta = getMeta();
+      let item = meta[dateKey];
+
+      const reroll = Number(localStorage.getItem("philosophy_reroll_" + dateKey) || item?.reroll || 0);
+      const set = item?.questions && item?.concepts ? {
+        classicQuestion: item.questions.classic,
+        modernQuestion: item.questions.modern,
+        concepts: item.concepts,
+        focus: item.focus || []
+      } : generateSet(dateKey, reroll);
+
+      const answer = localStorage.getItem(storageKey("answer", dateKey)) || "";
+      const reference = localStorage.getItem(storageKey("reference", dateKey)) || "";
+      const completed = item?.completed || localStorage.getItem(storageKey("completed", dateKey)) === "true";
+
+      document.getElementById("recordTitle").textContent = `${dateKey.replaceAll("-", "年").replace(/年(\d{2})年/, "年")} 学习记录`.replace(/^(\d{4})年(\d{2})年(\d{2})$/, "$1年$2月$3日 学习记录");
+      document.getElementById("recordTitle").textContent = `${Number(dateKey.slice(0,4))}年${Number(dateKey.slice(5,7))}月${Number(dateKey.slice(8,10))}日 学习记录`;
+      document.getElementById("recordStatusText").textContent = completed ? "已打卡 · 学习完成" : "未完成打卡";
+      document.getElementById("recordUpdated").textContent = item?.updatedAt ? `完成时间：${item.updatedAt}` : "暂无保存时间";
+      document.getElementById("recordDateText").textContent = formatChineseDate(dateKey);
+      document.getElementById("recordQ1").textContent = set.classicQuestion;
+      document.getElementById("recordQ2").textContent = set.modernQuestion;
+
+      document.getElementById("recordAnswer").innerHTML = answer.trim()
+        ? numberedStatic(answer)
+        : '<div class="empty">这一天还没有保存回答。</div>';
+
+      renderConcepts("recordConcepts", set.concepts);
+
+      document.getElementById("recordReference").innerHTML = reference.trim()
+        ? numberedStatic(reference)
+        : '<div class="empty">这一天还没有保存标准答案。</div>';
+
+      document.getElementById("homePage").classList.remove("active");
+      document.getElementById("recordPage").classList.add("active");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function numberedStatic(text) {
+      const parts = text.split(/\n{2,}/).map(s => s.trim()).filter(Boolean);
+      if (!parts.length) return "";
+      return parts.map((p, i) => `
+        <div class="answer-block">
+          <span class="num">${i + 1}</span>
+          <p>${escapeHTML(p)}</p>
+        </div>
+      `).join("");
+    }
+
+    function showHome() {
+      document.getElementById("recordPage").classList.remove("active");
+      document.getElementById("homePage").classList.add("active");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function scrollToCalendar() {
+      showHome();
+      setTimeout(() => document.querySelector(".calendar-card").scrollIntoView({ behavior: "smooth", block: "start" }), 80);
+    }
+
+    function scrollToConcepts() {
+      showHome();
+      setTimeout(() => document.getElementById("conceptCards").closest(".card").scrollIntoView({ behavior: "smooth", block: "start" }), 80);
+    }
+
+    function exportData() {
+      saveToday();
+      const data = {};
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith("philosophy_")) {
+          data[key] = localStorage.getItem(key);
+        }
+      }
+
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "philosophy-dashboard-backup-" + state.dateKey + ".json";
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function importData(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const data = JSON.parse(reader.result);
+          if (!confirm("导入会覆盖当前浏览器里的哲学学习记录，确定继续吗？")) return;
+          Object.keys(data).forEach(key => {
+            if (key.startsWith("philosophy_")) {
+              localStorage.setItem(key, data[key]);
+            }
+          });
+          location.reload();
+        } catch (e) {
+          alert("导入失败：文件不是有效 JSON。");
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function updateAnswerCounter() {
+      const answer = document.getElementById("answer");
+      const counter = document.getElementById("answerCounter");
+      counter.textContent = `${answer.value.length} / ${answer.maxLength}`;
+    }
+
+    function escapeHTML(str) {
+      return String(str ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    document.getElementById("answer").addEventListener("input", () => {
+      localStorage.setItem(storageKey("answer"), document.getElementById("answer").value);
+      updateAnswerCounter();
+      saveMeta(false);
+    });
+
+    document.getElementById("reference").addEventListener("input", () => {
+      localStorage.setItem(storageKey("reference"), document.getElementById("reference").value);
+      saveMeta(false);
+    });
+
+    setMode(localStorage.getItem("philosophy_mode") || "light");
+    render();
+  </script>
+</body>
+</html>
